@@ -66,7 +66,7 @@ class FaceDetector
 
         } elseif (is_file($file)) {
 
-            $this->canvas = imagecreatefromjpeg($file);
+            $this->canvas = $this->imagecreatefromfile($file);
 
         } else {
 
@@ -125,7 +125,7 @@ class FaceDetector
                 $stats['height']
             );
         }
-        return ($this->face['w'] > 0);
+        return (isset($this->face['w']) && $this->face['w'] > 0);
     }
 
 
@@ -321,4 +321,28 @@ class FaceDetector
         }
         return true;
     }
+	
+	protected function imagecreatefromfile( $filename ){
+		if (!file_exists($filename)) {
+			throw new InvalidArgumentException('File "'.$filename.'" not found.');
+		}
+		switch ( strtolower( pathinfo( $filename, PATHINFO_EXTENSION ))) {
+			case 'jpeg':
+			case 'jpg':
+				return imagecreatefromjpeg($filename);
+			break;
+
+			case 'png':
+				return imagecreatefrompng($filename);
+			break;
+
+			case 'gif':
+				return imagecreatefromgif($filename);
+			break;
+
+			default:
+				throw new InvalidArgumentException('File "'.$filename.'" is not valid jpg, png or gif image.');
+			break;
+		}
+	}
 }
